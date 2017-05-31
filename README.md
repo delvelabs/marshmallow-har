@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/delvelabs/marshmallow-har.svg?branch=master)](https://travis-ci.org/delvelabs/marshmallow-har)
+[![PyPi](https://badge.fury.io/py/marshmallow-har.svg)](https://badge.fury.io/py/marshmallow-har)
 
 # About
 
