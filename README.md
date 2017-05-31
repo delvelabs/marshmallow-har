@@ -7,6 +7,6 @@ Simple collection of marshmallow schemas to load/dump the [HTTP Archive 1.2 (HAR
 
 ## License
 
-Copyright 2016- Delve Labs inc.
+Copyright 2017- Delve Labs inc.
 
 This software is published under the MIT License.
