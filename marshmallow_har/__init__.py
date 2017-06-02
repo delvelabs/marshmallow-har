@@ -1,4 +1,4 @@
-from .schema import HARSchema
+from .model import HAR
 
 
-__all__ = ['HARSchema']
+__all__ = ['HAR']
