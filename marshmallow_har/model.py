@@ -288,8 +288,7 @@ class Cache(Model, metaclass=ModelMeta):
     def __init__(
         self, *,
         before_request: One[CacheState]=None,
-        after_request: One[CacheState]=None,
-        **kwargs) -> None: pass
+        after_request: One[CacheState]=None) -> None: pass
 
 
 class Content(Model, metaclass=ModelMeta):
@@ -299,8 +298,7 @@ class Content(Model, metaclass=ModelMeta):
         size: int=-1,
         mime_type: str=None,
         text: str="",
-        encoding: str=None,
-        **kwargs) -> None: pass
+        encoding: str=None) -> None: pass
 
 
 class Timings(Model, metaclass=ModelMeta):
@@ -313,13 +311,12 @@ class Timings(Model, metaclass=ModelMeta):
         send: int=-1,
         wait: int=-1,
         receive: int=-1,
-        ssl: int=-1,
-        **kwargs) -> None: pass
+        ssl: int=-1) -> None: pass
 
 
 class Header(Model, metaclass=ModelMeta):
 
-    def __init__(self, *, name: str, value: str, **kwargs) -> None: pass
+    def __init__(self, *, name: str, value: str) -> None: pass
 
 
 class PostParam(Model, metaclass=ModelMeta):
@@ -329,8 +326,7 @@ class PostParam(Model, metaclass=ModelMeta):
         name: str,
         value: str,
         file_name: str=None,
-        content_type: str=None,
-        **kwargs) -> None: pass
+        content_type: str=None) -> None: pass
 
 
 class PostData(Model, metaclass=ModelMeta):
@@ -339,13 +335,12 @@ class PostData(Model, metaclass=ModelMeta):
         self, *,
         mime_type: str=None,
         params: Many[PostParam]=None,
-        text: str="",
-        **kwargs) -> None: pass
+        text: str="") -> None: pass
 
 
 class Param(Model, metaclass=ModelMeta):
 
-    def __init__(self, *, name: str, value: str, **kwargs) -> None: pass
+    def __init__(self, *, name: str, value: str) -> None: pass
 
 
 class Request(Model, metaclass=ModelMeta):
@@ -382,14 +377,14 @@ class Response(Model, metaclass=ModelMeta):
 
 class Creator(Model, metaclass=ModelMeta):
 
-    def __init__(self, *, name: str, version: str, **kwargs) -> None: pass
+    def __init__(self, *, name: str, version: str) -> None: pass
 
 
 class PageTimings(Model, metaclass=ModelMeta):
 
     def __init__(
         self, *,
-        on_content_load: int=-1, on_load: int=-1, **kwargs) -> None: pass
+        on_content_load: int=-1, on_load: int=-1) -> None: pass
 
 
 class Page(Model, metaclass=ModelMeta):
@@ -404,7 +399,7 @@ class Page(Model, metaclass=ModelMeta):
 
 class Browser(Model, metaclass=ModelMeta):
 
-    def __init__(self, *, name: str, version: str, **kwargs) -> None: pass
+    def __init__(self, *, name: str, version: str) -> None: pass
 
 
 class Entry(Model, metaclass=ModelMeta):
@@ -422,8 +417,7 @@ class Entry(Model, metaclass=ModelMeta):
         cache: One[Cache]=None,
         timings: One[Timings]=None,
         server_ip_address: str=None,
-        connection: str=None,
-        **kwargs) -> None: pass
+        connection: str=None) -> None: pass
 
 
 class Log(Model, metaclass=ModelMeta):
@@ -434,8 +428,7 @@ class Log(Model, metaclass=ModelMeta):
         creator: One[Creator]=None,
         browser: One[Browser]=None,
         pages: Many[Page]=None,
-        entries: Many[Entry]=None,
-        **kwargs) -> None: pass
+        entries: Many[Entry]=None) -> None: pass
 
 
 class HAR(Model, metaclass=ModelMeta):
