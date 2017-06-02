@@ -109,7 +109,7 @@ class ResponseSchema(Schema):
     cookies = fields.Nested(CookieSchema, many=True)
     headers = fields.Nested(HeaderSchema, many=True)
     content = fields.Nested(ContentSchema, required=False, allow_none=True)
-    redirect_url = fields.String(required=False, default="", load_from="redirectURL", dump_to="redirectURL")
+    redirect_url = fields.String(required=False, allow_none=True, load_from="redirectURL", dump_to="redirectURL")
     header_size = fields.Integer(required=False, default=-1, load_from="headerSize", dump_to="headerSize")
     body_size = fields.Integer(required=False, default=-1, load_from="bodySize", dump_to="bodySize")
 
@@ -151,7 +151,7 @@ class EntrySchema(Schema):
 
     __model__ = Entry
 
-    page_ref = fields.String(required=False, allow_none=True)
+    pageref = fields.String(required=False, allow_none=True)
     started_date_time = fields.DateTime("iso", required=False, allow_none=True,
                                         load_from="startedDateTime", dump_to="startedDateTime")
     time = fields.Integer(required=False, default=-1)

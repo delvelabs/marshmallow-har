@@ -199,7 +199,7 @@ class EntrySerializeTest(unittest.TestCase):
         out = EntrySchema().dump(entry).data
 
         self.assertEqual(out, {
-            "page_ref": None,
+            "pageref": None,
             "startedDateTime": None,
             "time": -1,
             "request": {
@@ -235,7 +235,7 @@ class EntrySerializeTest(unittest.TestCase):
             "cookies": [],
             "headers": [],
             "content": unittest.mock.ANY,
-            "redirectURL": "",
+            "redirectURL": None,
             "headerSize": -1,
             "bodySize": -1,
             "comment": "",

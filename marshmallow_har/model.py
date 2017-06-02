@@ -58,7 +58,7 @@ class Response(Model):
                  cookies=None,
                  headers=None,
                  content=None,
-                 redirect_url="",
+                 redirect_url=None,
                  header_size=-1,
                  body_size=-1,
                  **kwargs):
@@ -143,7 +143,7 @@ class Timings(Model):
 class Entry(Model):
 
     def __init__(self, *,
-                 page_ref=None,
+                 pageref=None,
                  started_date_time=None,
                  time=-1,
                  request=None,
@@ -155,7 +155,7 @@ class Entry(Model):
                  **kwargs):
 
         super().__init__(**kwargs)
-        self.page_ref = page_ref
+        self.pageref = pageref
         self.started_date_time = started_date_time
         self.time = time
         self.request = request
