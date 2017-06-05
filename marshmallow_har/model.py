@@ -6,7 +6,7 @@ from typing import List
 from marshmallow import Schema as BaseSchema
 from marshmallow import post_dump, post_load
 
-from .meta import schema_metafactory, One, Many, Raw, URL
+from .schema_factory import schema_metafactory, One, Many, Raw, URL
 
 
 class Schema(BaseSchema):
