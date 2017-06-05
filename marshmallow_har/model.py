@@ -1,53 +1,19 @@
-from datetime import datetime
-import re
-from typing import List
-
-from marshmallow import Schema as BaseSchema
-from marshmallow import post_dump, post_load
-
-from .schema_factory import schema_metafactory, One, Many, Raw, URL
 
 
-class Schema(BaseSchema):
+class HAR:
 
-    @post_load(pass_original=True)
-    def load_extended(self, data, original_data):
+    def __init__(self, *, log=None, **kwargs):
+        self.log = log or Log(**kwargs)
 
-        if isinstance(original_data, dict):
-            extended_arguments = {
-                k: v for k, v in original_data.items()
-                if k.startswith('_') and not k.startswith('__')
-            }
-
-            if isinstance(data, dict):
-                data["extended_arguments"] = extended_arguments
-
-        return self.__model__(**data)
-
-    @post_dump
-    def dump_extended(self, data):
-        extended = data.pop("extendedArguments", {})
-        data.update(extended)
-        return data
+    def __getattr__(self, name):
+        return getattr(self.log, name)
 
 
-def sc_to_cc(s):
-    return re.sub('_([a-z])', lambda m: m.group(1).upper(), s)
+class Model:
 
-
-HAR_SCHEMA_FACTORY = schema_metafactory(
-    field_namer=sc_to_cc,
-    schema_base_class=Schema,
-)
-
-
-@HAR_SCHEMA_FACTORY
-class Model():
-
-    def __init__(
-        self, *,
-        extended_arguments: Raw=None,
-        comment: str="") -> None: pass
+    def __init__(self, extended_arguments=None, comment=""):
+        self.extended_arguments = extended_arguments or {}
+        self.comment = comment
 
     def __eq__(self, other):
         return (self.__class__ == other.__class__ and
@@ -57,198 +23,277 @@ class Model():
         return "%s(%s)" % (self.__class__.__name__, repr(self.__dict__))
 
 
-@HAR_SCHEMA_FACTORY
-class Cookie(Model):
-
-    def __init__(
-        self, *,
-        name: str,
-        value: str,
-        path: str=None,
-        domain: str=None,
-        expires: datetime=None,
-        http_only: bool=False,
-        secure: bool=False) -> None: pass
-
-
-@HAR_SCHEMA_FACTORY
-class CacheState(Model):
-    irregular_names = {'etag': 'eTag'}
-
-    def __init__(
-        self, *,
-        expires: datetime=None,
-        last_access: datetime=None,
-        etag: str=None,
-        hit_count: int=0,
-        **kwargs) -> None: pass
-
-
-@HAR_SCHEMA_FACTORY
-class Cache(Model):
-
-    def __init__(
-        self, *,
-        before_request: One[CacheState]=None,
-        after_request: One[CacheState]=None) -> None: pass
-
-
-@HAR_SCHEMA_FACTORY
-class Content(Model):
-
-    def __init__(
-        self, *,
-        size: int=-1,
-        mime_type: str=None,
-        text: str="",
-        encoding: str=None) -> None: pass
-
-
-@HAR_SCHEMA_FACTORY
-class Timings(Model):
-
-    def __init__(
-        self, *,
-        blocked: int=-1,
-        dns: int=-1,
-        connect: int=-1,
-        send: int=-1,
-        wait: int=-1,
-        receive: int=-1,
-        ssl: int=-1) -> None: pass
-
-
-@HAR_SCHEMA_FACTORY
-class Header(Model):
-
-    def __init__(self, *, name: str, value: str) -> None: pass
-
-
-@HAR_SCHEMA_FACTORY
-class PostParam(Model):
-
-    def __init__(
-        self, *,
-        name: str,
-        value: str,
-        file_name: str=None,
-        content_type: str=None) -> None: pass
-
-
-@HAR_SCHEMA_FACTORY
-class PostData(Model):
-
-    def __init__(
-        self, *,
-        mime_type: str=None,
-        params: Many[PostParam]=None,
-        text: str="") -> None: pass
-
-
-@HAR_SCHEMA_FACTORY
-class Param(Model):
-
-    def __init__(self, *, name: str, value: str) -> None: pass
-
-
-@HAR_SCHEMA_FACTORY
 class Request(Model):
 
-    def __init__(  # type: ignore
-        self, *,
-        method: str,
-        url: URL,
-        http_version: str="HTTP/1.0",
-        cookies: Many[Cookie]=None,
-        headers: Many[Header]=None,
-        query_string: List[str]=None,
-        post_data: One[PostData]=lambda: PostData(),
-        header_size: int=-1,
-        body_size: int=-1,
-        **kwargs) -> None: pass
+    def __init__(self, *,
+                 method,
+                 url,
+                 http_version="HTTP/1.0",
+                 cookies=None,
+                 headers=None,
+                 query_string=None,
+                 post_data=None,
+                 header_size=-1,
+                 body_size=-1,
+                 **kwargs):
+
+        super().__init__(**kwargs)
+        self.method = method
+        self.url = url
+        self.http_version = http_version
+        self.cookies = cookies or []
+        self.headers = headers or []
+        self.query_string = query_string or []
+        self.post_data = post_data or PostData()
+        self.header_size = header_size
+        self.body_size = body_size
 
 
-@HAR_SCHEMA_FACTORY
 class Response(Model):
-    irregular_names = {'redirect_url': 'redirectURL'}
 
-    def __init__(
-        self, *,
-        status: int,
-        status_text: str,
-        http_version: str="HTTP/1.0",
-        cookies: Many[Cookie]=None,
-        headers: Many[Header]=None,
-        content: One[Content]=None,
-        redirect_url: URL=None,
-        header_size: int=-1,
-        body_size: int=-1) -> None: pass
+    def __init__(self, *,
+                 status,
+                 status_text,
+                 http_version="HTTP/1.0",
+                 cookies=None,
+                 headers=None,
+                 content=None,
+                 redirect_url=None,
+                 header_size=-1,
+                 body_size=-1,
+                 **kwargs):
+
+        super().__init__(**kwargs)
+        self.status = status
+        self.status_text = status_text
+        self.http_version = http_version
+        self.cookies = cookies or []
+        self.headers = headers or []
+        self.content = content
+        self.redirect_url = redirect_url
+        self.header_size = header_size
+        self.body_size = body_size
 
 
-@HAR_SCHEMA_FACTORY
+class Cache(Model):
+
+    def __init__(self, *,
+                 before_request=None,
+                 after_request=None,
+                 **kwargs):
+
+        super().__init__(**kwargs)
+        self.before_request = before_request
+        self.after_request = after_request
+
+
+class CacheState(Model):
+
+    def __init__(self, *,
+                 expires=None,
+                 last_access=None,
+                 etag=None,
+                 hit_count=0,
+                 **kwargs):
+
+        self.expires = expires
+        self.last_access = last_access
+        self.etag = etag
+        self.hit_count = hit_count
+
+
+class Content(Model):
+
+    def __init__(self, *,
+                 size=-1,
+                 mime_type=None,
+                 text="",
+                 encoding=None,
+                 **kwargs):
+
+        super().__init__(**kwargs)
+        self.size = size
+        self.mime_type = mime_type
+        self.text = text
+        self.encoding = encoding
+
+
+class Timings(Model):
+
+    def __init__(self, *,
+                 blocked=-1,
+                 dns=-1,
+                 connect=-1,
+                 send=-1,
+                 wait=-1,
+                 receive=-1,
+                 ssl=-1,
+                 **kwargs):
+
+        super().__init__(**kwargs)
+        self.blocked = blocked
+        self.dns = dns
+        self.connect = connect
+        self.send = send
+        self.wait = wait
+        self.receive = receive
+        self.ssl = ssl
+
+
+class Entry(Model):
+
+    def __init__(self, *,
+                 pageref=None,
+                 started_date_time=None,
+                 time=-1,
+                 request=None,
+                 response=None,
+                 cache=None,
+                 timings=None,
+                 server_ip_address=None,
+                 connection=None,
+                 **kwargs):
+
+        super().__init__(**kwargs)
+        self.pageref = pageref
+        self.started_date_time = started_date_time
+        self.time = time
+        self.request = request
+        self.response = response
+        self.cache = cache
+        self.timings = timings
+        self.server_ip_address = server_ip_address
+        self.connection = connection
+
+
+class Header(Model):
+
+    def __init__(self, *, name, value, **kwargs):
+        super().__init__(**kwargs)
+        self.name = name
+        self.value = value
+
+
+class Cookie(Model):
+    def __init__(self, *,
+                 name,
+                 value,
+                 path=None,
+                 domain=None,
+                 expires=None,
+                 http_only=False,
+                 secure=False,
+                 **kwargs):
+
+        super().__init__(**kwargs)
+        self.name = name
+        self.value = value
+        self.path = path
+        self.domain = domain
+        self.expires = expires
+        self.http_only = http_only
+        self.secure = secure
+
+
+class PostData(Model):
+
+    def __init__(self, *,
+                 mime_type=None,
+                 params=None,
+                 text="",
+                 **kwargs):
+        super().__init__(**kwargs)
+        self.mime_type = mime_type
+        self.params = params or []
+        self.text = text
+
+
+class Param(Model):
+
+    def __init__(self, *,
+                 name,
+                 value,
+                 **kwargs):
+        super().__init__(**kwargs)
+        self.name = name
+        self.value = value
+
+
+class PostParam(Model):
+
+    def __init__(self, *,
+                 name,
+                 value,
+                 file_name=None,
+                 content_type=None,
+                 **kwargs):
+        super().__init__(**kwargs)
+        self.name = name
+        self.value = value
+        self.file_name = file_name
+        self.content_type = content_type
+
+
 class Creator(Model):
 
-    def __init__(self, *, name: str, version: str) -> None: pass
+    def __init__(self, *,
+                 name,
+                 version,
+                 **kwargs):
+        super().__init__(**kwargs)
+        self.name = name
+        self.version = version
 
 
-@HAR_SCHEMA_FACTORY
-class PageTimings(Model):
-
-    def __init__(
-        self, *,
-        on_content_load: int=-1, on_load: int=-1) -> None: pass
-
-
-@HAR_SCHEMA_FACTORY
 class Page(Model):
 
-    def __init__(
-        self, *,
-        id: str,
-        title: str,
-        started_date_time: datetime=None,
-        page_timings: One[PageTimings]=None) -> None: pass
+    def __init__(self, *,
+                 id,
+                 title,
+                 started_date_time=None,
+                 page_timings=None,
+                 **kwargs):
+        super().__init__(**kwargs)
+        self.id = id
+        self.title = title
+        self.started_date_time = started_date_time
+        self.page_timings = page_timings
 
 
-@HAR_SCHEMA_FACTORY
+class PageTimings(Model):
+
+    def __init__(self, *,
+                 on_content_load=-1,
+                 on_load=-1,
+                 **kwargs):
+        super().__init__(**kwargs)
+        self.on_content_load = on_content_load
+        self.on_load = on_load
+
+
 class Browser(Model):
 
-    def __init__(self, *, name: str, version: str) -> None: pass
+    def __init__(self, *,
+                 name,
+                 version,
+                 **kwargs):
+        super().__init__(**kwargs)
+        self.name = name
+        self.version = version
 
 
-@HAR_SCHEMA_FACTORY
-class Entry(Model):
-    irregular_names = {
-        'server_ip_address': 'serverIPAddress',
-    }
-
-    def __init__(
-        self, *,
-        pageref: str=None,
-        started_date_time: datetime=None,
-        time: int=-1,
-        request: One[Request]=None,
-        response: One[Response]=None,
-        cache: One[Cache]=None,
-        timings: One[Timings]=None,
-        server_ip_address: str=None,
-        connection: str=None) -> None: pass
-
-
-@HAR_SCHEMA_FACTORY
 class Log(Model):
 
-    def __init__(
-        self, *,
-        version: str="1.1",
-        creator: One[Creator]=None,
-        browser: One[Browser]=None,
-        pages: Many[Page]=None,
-        entries: Many[Entry]=None) -> None: pass
-
-
-@HAR_SCHEMA_FACTORY
-class HAR(Model):
-
-    def __init__(self, *, log: One[Log]=None, **kwargs) -> None:
-        self.log = log or Log(**kwargs)
+    def __init__(self, *,
+                 version="1.1",
+                 creator=None,
+                 browser=None,
+                 pages=None,
+                 entries=None,
+                 **kwargs):
+        super().__init__(**kwargs)
+        self.version = version
+        self.creator = creator
+        self.browser = browser
+        self.pages = pages or []
+        self.entries = entries or []
