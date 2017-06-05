@@ -1,5 +1,4 @@
 from datetime import datetime
-from pprint import pprint as pp
 import re
 from typing import List
 
@@ -253,9 +252,3 @@ class HAR(Model):
 
     def __init__(self, *, log: One[Log]=None, **kwargs) -> None:
         self.log = log or Log(**kwargs)
-
-
-if __name__ == '__main__':
-    from pprint import pprint as pp
-
-    pd = PostData
