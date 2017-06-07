@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(name='marshmallow-har',
-      version='0.2',
+      version='0.3',
       description='Simple set of marshmallow schemas to load/dump the HTTP Archive (HAR) format.',
       author='Delve Labs inc.',
       author_email='info@delvelabs.ca',

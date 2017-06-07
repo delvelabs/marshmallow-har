@@ -35,8 +35,8 @@ class CookieSchema(Schema):
     path = fields.String(required=False, allow_none=True)
     domain = fields.String(required=False, allow_none=True)
     expires = fields.DateTime("iso", required=False, allow_none=True)
-    http_only = fields.Boolean(required=False, load_from="httpOnly", dump_to="httpOnly")
-    secure = fields.Boolean(required=False)
+    http_only = fields.Boolean(required=False, load_from="httpOnly", dump_to="httpOnly", default=False)
+    secure = fields.Boolean(required=False, default=False)
 
 
 class HeaderSchema(Schema):
@@ -61,15 +61,15 @@ class PostParamSchema(Schema):
 
     name = fields.String(required=True)
     value = fields.String(required=True)
-    file_name = fields.String(required=False, load_from="fileName", dump_to="fileName")
-    content_type = fields.String(required=False, load_from="contentType", dump_to="contentType")
+    file_name = fields.String(required=False, load_from="fileName", dump_to="fileName", allow_none=True)
+    content_type = fields.String(required=False, load_from="contentType", dump_to="contentType", allow_none=True)
 
 
 class PostDataSchema(Schema):
 
     __model__ = PostData
 
-    mime_type = fields.String(required=False, load_from="mimeType", dump_to="mimeType")
+    mime_type = fields.String(required=False, load_from="mimeType", dump_to="mimeType", allow_none=True)
     params = fields.Nested(PostParamSchema, many=True)
     text = fields.String(required=False)
 
@@ -120,7 +120,7 @@ class CacheStateSchema(Schema):
 
     expires = fields.DateTime("iso", required=False, allow_none=True)
     last_access = fields.DateTime("iso", required=False, allow_none=True, load_from="lastAccess", dump_to="lastAccess")
-    etag = fields.String(required=False, allow_none=True, load_from="eTag", dump_to="eTag")
+    e_tag = fields.String(required=False, allow_none=True, load_from="eTag", dump_to="eTag")
     hit_count = fields.Integer(required=False, load_from="hitCount", dump_to="hitCount")
 
 

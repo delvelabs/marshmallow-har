@@ -322,7 +322,7 @@ class CacheSerializeTest(unittest.TestCase):
             },
         }
         cache = CacheSchema().load(cache).data
-        self.assertEqual(cache.before_request.etag, "1234")
+        self.assertEqual(cache.before_request.e_tag, "1234")
         self.assertEqual(cache.before_request.hit_count, 12)
 
 

@@ -92,13 +92,13 @@ class CacheState(Model):
     def __init__(self, *,
                  expires=None,
                  last_access=None,
-                 etag=None,
+                 e_tag=None,
                  hit_count=0,
                  **kwargs):
 
         self.expires = expires
         self.last_access = last_access
-        self.etag = etag
+        self.e_tag = e_tag
         self.hit_count = hit_count
 
 
