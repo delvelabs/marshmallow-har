@@ -347,3 +347,23 @@ class PageSerializeTest(unittest.TestCase):
         self.assertEqual(page.id, "page_1")
         self.assertEqual(page.page_timings.on_content_load, 123)
         self.assertEqual(page.page_timings.on_load, 234)
+
+
+class PickleTest(unittest.TestCase):
+
+    def test_har_model_pickle(self):
+        import pickle
+
+        har = HAR(version="1.2", pages=[
+            Page(id="page_1337", title="H0w to b3 a H4xx3r"),
+        ])
+
+        print(har.__dict__)
+
+        with open('/tmp/har.p', 'wb') as f:
+            pickle.dump(har, f)
+
+        with open('/tmp/har.p', 'rb') as f:
+            l_har = pickle.load(f)
+
+        self.assertEqual(HARSchema().dump(har), HARSchema().dump(l_har))
