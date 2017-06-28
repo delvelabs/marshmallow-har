@@ -353,11 +353,8 @@ class PickleTest(unittest.TestCase):
 
         import pickle
 
-        with open('/tmp/har.p', 'wb') as f:
-            pickle.dump(har, f)
-
-        with open('/tmp/har.p', 'rb') as f:
-            loaded_har = pickle.load(f)
+        dumped = pickle.dumps(har)
+        loaded_har = pickle.loads(dumped)
 
         self.assertEqual(
             HARSchema().dump(har),

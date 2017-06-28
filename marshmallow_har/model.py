@@ -7,7 +7,7 @@ class HAR:
 
     def __getattr__(self, name):
         if name.startswith('__'):
-            raise AttributeError
+            raise AttributeError()
 
         return getattr(self.log, name)
 
