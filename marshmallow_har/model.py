@@ -6,6 +6,9 @@ class HAR:
         self.log = log or Log(**kwargs)
 
     def __getattr__(self, name):
+        if name.startswith('__'):
+            raise AttributeError
+
         return getattr(self.log, name)
 
 
