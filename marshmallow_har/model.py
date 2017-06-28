@@ -73,13 +73,12 @@ class Cookie(Model):
 
 @HAR_SCHEMA_FACTORY
 class CacheState(Model):
-    irregular_names = {'etag': 'eTag'}
 
     def __init__(
         self, *,
         expires: datetime=None,
         last_access: datetime=None,
-        etag: str=None,
+        e_tag: str=None,
         hit_count: int=0,
         **kwargs) -> None: pass
 

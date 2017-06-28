@@ -60,6 +60,10 @@ def is_model_init(init):
     return '_mro_offset' in signature(init).parameters.keys()
 
 
+def is_type(typ, *typs):
+    return any([typ.__name__ == t.__name__ for t in typs])
+
+
 st_fieldspec = namedtuple(
     'fieldspec', ('default', 'type', 'req', 'allow_none'))
 
@@ -68,7 +72,7 @@ def schema_metafactory(  # noqa
         *,
         field_namer=lambda x: x,
         schema_base_class=Schema,
-        extended_field_map=None,):
+        extended_field_map=None):
     '''
     Creates a domain-specific schema factory.
 
@@ -158,7 +162,7 @@ def schema_metafactory(  # noqa
 
         for kwname, fspec in init_named_kwargs.items():
             field_args = []
-            if issubclass(fspec.type, (Many, One, List)):
+            if is_type(fspec.type, Many, One, List):
                 key = 'nested' if not issubclass(fspec.type, List) else 'list'
                 nested_type = get_schema_cls(fspec.type.__args__[0])
                 field_args.append(nested_type)
@@ -171,7 +175,7 @@ def schema_metafactory(  # noqa
             field = FIELD_TAB[key](
                 *field_args,
                 default=fspec.default or missing,
-                many=issubclass(fspec.type, (Many, List)),
+                many=is_type(fspec.type, Many, List),
                 required=fspec.req,
                 load_from=load_dump_to,
                 dump_to=load_dump_to,
@@ -222,9 +226,9 @@ def schema_metafactory(  # noqa
             for kwname, fspec in init_named_kwargs.items():
                 attr = kwargs.get(kwname, fspec.default)
 
-                if issubclass(fspec.type, (Many, List)):
+                if is_type(fspec.type, Many, List):
                     attr = attr or []
-                if issubclass(fspec.type, Raw):
+                if is_type(fspec.type, Raw):
                     attr = attr or {}
                 elif callable(fspec.default):
                     attr = attr or fspec.default()
