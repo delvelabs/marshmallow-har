@@ -95,6 +95,28 @@ class RequestSerializeTest(unittest.TestCase):
 
         self.assertEqual({"test": "Hello World!"}, out["_anything"])
 
+    def test_preserve_extended_attributes_when_nexted(self):
+        input = {
+            "method": "GET",
+            "url": "http://example.com/",
+            "httpVersion": "HTTP/1.0",
+            "headerSize": -1,
+            "bodySize": -1,
+            "cookies": [
+                {"name": "a", "value": "1", "_test": "123"},
+                {"name": "b", "value": "2", "_test": "234"},
+            ],
+            "headers": [],
+            "queryString": [],
+            "postData": {},
+            "comment": "",
+        }
+        intermediate = RequestSchema().load(input).data
+        out = RequestSchema().dump(intermediate).data
+
+        self.assertEqual("123", out["cookies"][0]["_test"])
+        self.assertEqual("234", out["cookies"][1]["_test"])
+
 
 class CookieSerializeTest(unittest.TestCase):
 

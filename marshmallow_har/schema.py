@@ -8,15 +8,18 @@ class Schema(BaseSchema):
     extended_arguments = fields.Raw(required=False)
     comment = fields.String(required=False)
 
-    @post_load(pass_original=True)
-    def load_extended(self, data, original_data):
-        if isinstance(original_data, dict):
-            extended_arguments = {k: v for k, v in original_data.items() if k.startswith('_')}
+    @post_load(pass_original=True, pass_many=True)
+    def load_extended(self, data, many, original_data):
+        if many:
+            return [self.load_extended(single, False, original) for single, original in zip(data, original_data)]
+        else:
+            if isinstance(original_data, dict):
+                extended_arguments = {k: v for k, v in original_data.items() if k.startswith('_')}
 
-            if isinstance(data, dict):
-                data["extended_arguments"] = extended_arguments
+                if isinstance(data, dict):
+                    data["extended_arguments"] = extended_arguments
 
-        return self.__model__(**data)
+            return self.__model__(**data)
 
     @post_dump
     def dump_extended(self, data):
