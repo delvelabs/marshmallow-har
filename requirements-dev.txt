@@ -1,2 +1,1 @@
-nose
-marshmallow
+nose>=1.3.0
