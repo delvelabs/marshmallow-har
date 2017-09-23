@@ -1,5 +1,6 @@
 import unittest
 import unittest.mock
+from marshmallow_har.schema import HARSchema, RequestSchema
 from marshmallow_har.model import (
     Browser, Cache, Cookie, Creator, Header, Page, Param, Request, Response,
     PostData, Entry, HAR, Timings, PostParam,
@@ -96,6 +97,28 @@ class RequestSerializeTest(unittest.TestCase):
         out = intermediate.dump().data
 
         self.assertEqual({"test": "Hello World!"}, out["_anything"])
+
+    def test_preserve_extended_attributes_when_nexted(self):
+        input = {
+            "method": "GET",
+            "url": "http://example.com/",
+            "httpVersion": "HTTP/1.0",
+            "headerSize": -1,
+            "bodySize": -1,
+            "cookies": [
+                {"name": "a", "value": "1", "_test": "123"},
+                {"name": "b", "value": "2", "_test": "234"},
+            ],
+            "headers": [],
+            "queryString": [],
+            "postData": {},
+            "comment": "",
+        }
+        intermediate = RequestSchema().load(input).data
+        out = RequestSchema().dump(intermediate).data
+
+        self.assertEqual("123", out["cookies"][0]["_test"])
+        self.assertEqual("234", out["cookies"][1]["_test"])
 
 
 class CookieSerializeTest(unittest.TestCase):
@@ -347,3 +370,22 @@ class PageSerializeTest(unittest.TestCase):
         self.assertEqual(page.id, "page_1")
         self.assertEqual(page.page_timings.on_content_load, 123)
         self.assertEqual(page.page_timings.on_load, 234)
+
+
+class PickleTest(unittest.TestCase):
+
+    def test_har_pickle(self):
+
+        har = HAR(version="1.2", pages=[
+            Page(id="page_0", title="Hello World"),
+        ])
+
+        import pickle
+
+        dumped = pickle.dumps(har)
+        loaded_har = pickle.loads(dumped)
+
+        self.assertEqual(
+            HARSchema().dump(har),
+            HARSchema().dump(loaded_har),
+        )

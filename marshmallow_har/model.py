@@ -1,26 +1,30 @@
 from datetime import datetime
-import re
 from typing import List
 
-from marshmallow import Schema as BaseSchema
+from marshmallow import Schema as BaseSchema, fields
 from marshmallow import post_dump, post_load
 
-from .schema_factory import schema_metafactory, One, Many, Raw, URL
+from marshmallow_autoschema import schema_metafactory, sc_to_cc, One, Many, Raw
+
+
+class URL:
+    pass
 
 
 class Schema(BaseSchema):
 
-    @post_load(pass_original=True)
-    def load_extended(self, data, original_data):
+    @post_load(pass_original=True, pass_many=True)
+    def load_extended(self, data, many, original_data):
+        if many:
+            return [self.load_extended(single, False, original) for single, original in zip(data, original_data)]
+        else:
+            if isinstance(original_data, dict):
+                extended_arguments = {k: v for k, v in original_data.items() if k.startswith('_')}
 
-        if isinstance(original_data, dict):
-            extended_arguments = {
-                k: v for k, v in original_data.items()
-                if k.startswith('_') and not k.startswith('__')
-            }
+                if isinstance(data, dict):
+                    data["extended_arguments"] = extended_arguments
 
-            if isinstance(data, dict):
-                data["extended_arguments"] = extended_arguments
+            return self.__model__(**data)
 
         return self.__model__(**data)
 
@@ -31,13 +35,12 @@ class Schema(BaseSchema):
         return data
 
 
-def sc_to_cc(s):
-    return re.sub('_([a-z])', lambda m: m.group(1).upper(), s)
-
-
 HAR_SCHEMA_FACTORY = schema_metafactory(
     field_namer=sc_to_cc,
     schema_base_class=Schema,
+    extended_field_map={
+        URL: fields.Url,
+    }
 )
 
 
@@ -48,6 +51,12 @@ class Model():
         self, *,
         extended_arguments: Raw=None,
         comment: str="") -> None: pass
+
+    def __getattr__(self, name):
+        if name.startswith('__'):
+            raise AttributeError()
+
+        return getattr(self.log, name)
 
     def __eq__(self, other):
         return (self.__class__ == other.__class__ and
