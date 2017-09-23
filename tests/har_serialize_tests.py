@@ -75,6 +75,14 @@ class RequestSerializeTest(unittest.TestCase):
             "comment": "",
         })
 
+    def test_request_without_post_data_initializes_object(self):
+        request = Request(
+            method="POST",
+            url="http://example.com/form",
+            http_version="HTTP/1.0"
+        )
+        self.assertEqual(request.post_data.text, "")
+
     def test_request_with_post_data(self):
         request = Request(
             method="POST",

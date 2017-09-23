@@ -185,17 +185,18 @@ class Param(Model):
 class Request(Model):
 
     def __init__(  # type: ignore
-        self, *,
-        method: str,
-        url: URL,
-        http_version: str="HTTP/1.0",
-        cookies: Many[Cookie]=None,
-        headers: Many[Header]=None,
-        query_string: List[str]=None,
-        post_data: One[PostData]=lambda: PostData(),
-        header_size: int=-1,
-        body_size: int=-1,
-        **kwargs) -> None: pass
+            self, *,
+            method: str,
+            url: URL,
+            http_version: str="HTTP/1.0",
+            cookies: Many[Cookie]=None,
+            headers: Many[Header]=None,
+            query_string: List[str]=None,
+            post_data: One[PostData]=None,
+            header_size: int=-1,
+            body_size: int=-1,
+            **kwargs) -> None:
+        self.post_data = post_data or PostData()
 
 
 @HAR_SCHEMA_FACTORY
