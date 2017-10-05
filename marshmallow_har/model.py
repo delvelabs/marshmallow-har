@@ -23,14 +23,10 @@
 from datetime import datetime
 from typing import List
 
-from marshmallow import Schema as BaseSchema, fields
+from marshmallow import Schema as BaseSchema
 from marshmallow import post_dump, post_load
 
 from marshmallow_autoschema import schema_metafactory, sc_to_cc, One, Many, Raw
-
-
-class URL:
-    pass
 
 
 class Schema(BaseSchema):
@@ -60,9 +56,6 @@ class Schema(BaseSchema):
 HAR_SCHEMA_FACTORY = schema_metafactory(
     field_namer=sc_to_cc,
     schema_base_class=Schema,
-    extended_field_map={
-        URL: fields.Url,
-    }
 )
 
 
@@ -187,7 +180,7 @@ class Request(Model):
     def __init__(  # type: ignore
             self, *,
             method: str,
-            url: URL,
+            url: str,
             http_version: str="HTTP/1.0",
             cookies: Many[Cookie]=None,
             headers: Many[Header]=None,
@@ -211,7 +204,7 @@ class Response(Model):
         cookies: Many[Cookie]=None,
         headers: Many[Header]=None,
         content: One[Content]=None,
-        redirect_url: URL=None,
+        redirect_url: str="",
         header_size: int=-1,
         body_size: int=-1) -> None: pass
 

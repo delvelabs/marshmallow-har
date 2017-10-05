@@ -293,7 +293,7 @@ class EntrySerializeTest(unittest.TestCase):
             "cookies": [],
             "headers": [],
             "content": unittest.mock.ANY,
-            "redirectURL": None,
+            "redirectURL": "",
             "headerSize": -1,
             "bodySize": -1,
             "comment": "",
@@ -369,6 +369,23 @@ class ResponseSerializeTest(unittest.TestCase):
         self.maxDiff = None
         self.assertEqual(input, output)
 
+    def test_empty_redirect_url(self):
+        input = {
+            "status": 200,
+            "statusText": "OK",
+            "httpVersion": "HTTP/1.0",
+            "cookies": [],
+            "headers": [],
+            "content": None,
+            "redirectURL": "",
+            "headerSize": -1,
+            "bodySize": -1,
+            "comment": "",
+        }
+        intermediate = Response.load(input).data
+        output = intermediate.dump().data
+        self.assertEqual(input, output)
+
 
 class CacheSerializeTest(unittest.TestCase):
 
@@ -380,7 +397,6 @@ class CacheSerializeTest(unittest.TestCase):
             },
         }
         cache = Cache.load(cache).data
-        print(cache)
         self.assertEqual(cache.before_request.e_tag, "1234")
         self.assertEqual(cache.before_request.hit_count, 12)
 
