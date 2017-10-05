@@ -198,6 +198,23 @@ class QueryStringSerializeTest(unittest.TestCase):
         self.assertEqual(Param.load(input).data, obj)
         self.assertEqual(obj.dump().data, input)
 
+    def test_query_string_in_request(self):
+        input = {
+            "method": "GET",
+            "url": "http://example.com/",
+            "httpVersion": "HTTP/1.0",
+            "headerSize": -1,
+            "bodySize": -1,
+            "queryString": [
+                {"name": "a", "value": "1"},
+            ],
+            "headers": [],
+            "postData": {},
+            "comment": "",
+        }
+        obj, errors = Request.load(input)
+        self.assertEqual(obj.query_string[0], Param(name="a", value="1"))
+
 
 class HARSerializeTest(unittest.TestCase):
 

@@ -21,7 +21,6 @@
 # SOFTWARE.
 
 from datetime import datetime
-from typing import List
 
 from marshmallow import Schema as BaseSchema
 from marshmallow import post_dump, post_load
@@ -184,7 +183,7 @@ class Request(Model):
             http_version: str="HTTP/1.0",
             cookies: Many[Cookie]=None,
             headers: Many[Header]=None,
-            query_string: List[str]=None,
+            query_string: Many[Param]=None,
             post_data: One[PostData]=None,
             header_size: int=-1,
             body_size: int=-1,
