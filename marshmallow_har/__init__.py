@@ -20,8 +20,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from .model import HAR
+from .model import HAR, Cookie, CacheState, Cache, Content, Timings, Header
+from .model import PostParam, PostData, Param, Request, Response, Creator
+from .model import PageTimings, Page, Browser, Entry, Log
+
 from .schema import HARSchema
 
 
-__all__ = ['HAR', 'HARSchema']
+__all__ = [
+    'HAR',
+    'HARSchema',
+    'Cookie',
+    'CacheState',
+    'Cache',
+    'Content',
+    'Timings',
+    'Header',
+    'PostParam',
+    'PostData',
+    'Param',
+    'Request',
+    'Response',
+    'Creator',
+    'PageTimings',
+    'Page',
+    'Browser',
+    'Entry',
+    'Log',
+]
