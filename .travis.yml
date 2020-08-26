@@ -4,12 +4,13 @@ language: python
 # http://blog.travis-ci.com/2014-12-17-faster-builds-with-container-based-infrastructure/
 sudo: false
 python:
-  - "3.6"
   - "3.5"
+  - "3.6"
+  - "3.7"
 matrix:
   include:
-    - python: 3.7
-      dist: xenial
+    - python: 3.8
+      dist: focal
 
 before_install:
 - pip install -U pip
