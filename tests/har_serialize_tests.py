@@ -35,7 +35,7 @@ class RequestSerializeTest(unittest.TestCase):
         request = Request(method="GET",
                           url="http://example.com/",
                           http_version="HTTP/1.0")
-        self.assertEqual(request.dump().data, {
+        self.assertEqual(request.dump(), {
             "method": "GET",
             "url": "http://example.com/",
             "httpVersion": "HTTP/1.0",
@@ -53,7 +53,7 @@ class RequestSerializeTest(unittest.TestCase):
                           url="http://example.com/",
                           http_version="HTTP/1.0",
                           cookies=[Cookie(name="PHPSESSID", value="12341234")])
-        self.assertEqual(request.dump().data["cookies"][0], {
+        self.assertEqual(request.dump()["cookies"][0], {
             "name": "PHPSESSID",
             "value": "12341234",
             "path": None,
@@ -69,7 +69,7 @@ class RequestSerializeTest(unittest.TestCase):
                           url="http://example.com/",
                           http_version="HTTP/1.0",
                           headers=[Header(name="Accept-Language", value="en-US; *")])
-        self.assertEqual(request.dump().data["headers"][0], {
+        self.assertEqual(request.dump()["headers"][0], {
             "name": "Accept-Language",
             "value": "en-US; *",
             "comment": "",
@@ -96,7 +96,7 @@ class RequestSerializeTest(unittest.TestCase):
             )
         )
 
-        self.assertEqual(request.dump().data["postData"], {
+        self.assertEqual(request.dump()["postData"], {
             "mimeType": "multipart/form-data",
             "params": [{
                 "name": "user",
@@ -123,8 +123,8 @@ class RequestSerializeTest(unittest.TestCase):
             "_extended": "Hello",
             "_anything": {"test": "Hello World!"},
         }
-        intermediate = Request.load(input).data
-        out = intermediate.dump().data
+        intermediate = Request.load(input)
+        out = intermediate.dump()
 
         self.assertEqual({"test": "Hello World!"}, out["_anything"])
 
@@ -144,8 +144,8 @@ class RequestSerializeTest(unittest.TestCase):
             "postData": {},
             "comment": "",
         }
-        intermediate = RequestSchema().load(input).data
-        out = RequestSchema().dump(intermediate).data
+        intermediate = RequestSchema().load(input)
+        out = RequestSchema().dump(intermediate)
 
         self.assertEqual("123", out["cookies"][0]["_test"])
         self.assertEqual("234", out["cookies"][1]["_test"])
@@ -165,7 +165,7 @@ class CookieSerializeTest(unittest.TestCase):
                         http_only=True,
                         secure=True,
                         comment="")
-        out = cookie.dump().data
+        out = cookie.dump()
         self.assertEqual(out, {
             "name": "TEST",
             "value": "123",
@@ -185,8 +185,8 @@ class HeaderSerializeTest(unittest.TestCase):
         input = {"name": "X", "value": "Y", "comment": ""}
         obj = Header(name="X", value="Y")
 
-        self.assertEqual(Header.load(input).data, obj)
-        self.assertEqual(obj.dump().data, input)
+        self.assertEqual(Header.load(input), obj)
+        self.assertEqual(obj.dump(), input)
 
 
 class QueryStringSerializeTest(unittest.TestCase):
@@ -195,8 +195,8 @@ class QueryStringSerializeTest(unittest.TestCase):
         input = {"name": "q", "value": "test", "comment": ""}
         obj = Param(name="q", value="test")
 
-        self.assertEqual(Param.load(input).data, obj)
-        self.assertEqual(obj.dump().data, input)
+        self.assertEqual(Param.load(input), obj)
+        self.assertEqual(obj.dump(), input)
 
     def test_query_string_in_request(self):
         input = {
@@ -212,7 +212,7 @@ class QueryStringSerializeTest(unittest.TestCase):
             "postData": {},
             "comment": "",
         }
-        obj, errors = Request.load(input)
+        obj = Request.load(input)
         self.assertEqual(obj.query_string[0], Param(name="a", value="1"))
 
 
@@ -221,7 +221,7 @@ class HARSerializeTest(unittest.TestCase):
     def test_basic_har(self):
         har = HAR(version="1.2")
 
-        self.assertEqual(har.dump().data, {
+        self.assertEqual(har.dump(), {
             'comment': '',
             "log": {
                 "version": "1.2",
@@ -237,7 +237,7 @@ class HARSerializeTest(unittest.TestCase):
         har = HAR(version="1.2", pages=[
             Page(id="page_0", title="Hello World"),
         ])
-        self.assertEqual(har.dump().data["log"]["pages"][0], {
+        self.assertEqual(har.dump()["log"]["pages"][0], {
             "startedDateTime": None,
             "id": "page_0",
             "title": "Hello World",
@@ -252,8 +252,8 @@ class CreatorSerializeTest(unittest.TestCase):
         input = {"name": "Firebug", "version": "1.5", "comment": ""}
         obj = Creator(name="Firebug", version="1.5", comment="")
 
-        self.assertEqual(Creator.load(input).data, obj)
-        self.assertEqual(obj.dump().data, input)
+        self.assertEqual(Creator.load(input), obj)
+        self.assertEqual(obj.dump(), input)
 
 
 class BrowserSerializeTest(unittest.TestCase):
@@ -262,8 +262,8 @@ class BrowserSerializeTest(unittest.TestCase):
         input = {"name": "Firefox", "version": "3.5", "comment": ""}
         obj = Browser(name="Firefox", version="3.5", comment="")
 
-        self.assertEqual(Browser.load(input).data, obj)
-        self.assertEqual(obj.dump().data, input)
+        self.assertEqual(Browser.load(input), obj)
+        self.assertEqual(obj.dump(), input)
 
 
 class EntrySerializeTest(unittest.TestCase):
@@ -271,7 +271,7 @@ class EntrySerializeTest(unittest.TestCase):
     def test_base_entry(self):
         self.maxDiff = 5000
         entry = Entry(request=Request(method="GET", url="http://example.com/"))
-        out = entry.dump().data
+        out = entry.dump()
 
         self.assertEqual(out, {
             "pageref": None,
@@ -301,7 +301,7 @@ class EntrySerializeTest(unittest.TestCase):
         entry = Entry(response=Response(status=200,
                                         status_text="OK",
                                         http_version="HTTP/1.0"))
-        out = entry.dump().data
+        out = entry.dump()
 
         self.assertEqual(out["response"], {
             "status": 200,
@@ -318,7 +318,7 @@ class EntrySerializeTest(unittest.TestCase):
 
     def test_cache(self):
         entry = Entry(cache=Cache())
-        out = entry.dump().data
+        out = entry.dump()
 
         self.assertEqual(out["cache"], {
             "beforeRequest": None,
@@ -333,7 +333,7 @@ class EntrySerializeTest(unittest.TestCase):
                                       send=20,
                                       wait=38,
                                       receive=12))
-        out = entry.dump().data
+        out = entry.dump()
 
         self.assertEqual(out["timings"], {
             "blocked": 12,
@@ -380,8 +380,8 @@ class ResponseSerializeTest(unittest.TestCase):
             "bodySize": 45,
             "comment": "Expected.",
         }
-        intermediate = Response.load(input).data
-        output = intermediate.dump().data
+        intermediate = Response.load(input)
+        output = intermediate.dump()
 
         self.maxDiff = None
         self.assertEqual(input, output)
@@ -399,8 +399,8 @@ class ResponseSerializeTest(unittest.TestCase):
             "bodySize": -1,
             "comment": "",
         }
-        intermediate = Response.load(input).data
-        output = intermediate.dump().data
+        intermediate = Response.load(input)
+        output = intermediate.dump()
         self.assertEqual(input, output)
 
 
@@ -413,7 +413,7 @@ class CacheSerializeTest(unittest.TestCase):
                 "hitCount": 12,
             },
         }
-        cache = Cache.load(cache).data
+        cache = Cache.load(cache)
         self.assertEqual(cache.before_request.e_tag, "1234")
         self.assertEqual(cache.before_request.hit_count, 12)
 
@@ -429,7 +429,7 @@ class PageSerializeTest(unittest.TestCase):
                 "onLoad": 234,
             },
         }
-        page = Page.load(page).data
+        page = Page.load(page)
         self.assertEqual(page.id, "page_1")
         self.assertEqual(page.page_timings.on_content_load, 123)
         self.assertEqual(page.page_timings.on_load, 234)

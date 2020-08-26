@@ -1,1 +1,1 @@
-marshmallow_autoschema>=0.1.0
+marshmallow_autoschema>=0.4,<0.5

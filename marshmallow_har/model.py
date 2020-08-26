@@ -31,9 +31,9 @@ from marshmallow_autoschema import schema_metafactory, sc_to_cc, One, Many, Raw
 class Schema(BaseSchema):
 
     @post_load(pass_original=True, pass_many=True)
-    def load_extended(self, data, many, original_data):
+    def load_extended(self, data, original_data, many, partial):
         if many:
-            return [self.load_extended(single, False, original) for single, original in zip(data, original_data)]
+            return [self.load_extended(single, original, False, partial) for single, original in zip(data, original_data)]
         else:
             if isinstance(original_data, dict):
                 extended_arguments = {k: v for k, v in original_data.items() if k.startswith('_')}
@@ -46,7 +46,7 @@ class Schema(BaseSchema):
         return self.__model__(**data)
 
     @post_dump
-    def dump_extended(self, data):
+    def dump_extended(self, data, many):
         extended = data.pop("extendedArguments", {})
         data.update(extended)
         return data
